@@ -11,18 +11,21 @@ This is the guidance for submission to Algorithmic Pattern 2025 via the *HedgeDo
 HedgeDoc uses 'markdown' style formatting, where you write in text, and additional characters to apply formatting. For example to write in italic, place asterisks around it *like this*. You can find some examples below, and more detailed information [in the hedgedoc documentation](https://doc.patternclub.org/features?both).
 
 :::info
-You can see and edit the [markdown version of this page](https://doc.patternclub.org/Vf0t_DNQTQeFLqhnF2N2MA?edit) by clicking the 'pencil' icon on the top bar - this will allow you to see markdown examples. You can view the [formatted version](https://doc.patternclub.org/Vf0t_DNQTQeFLqhnF2N2MA?view) by clicking the 'eye' icon, and see [both at the same time](https://doc.patternclub.org/Vf0t_DNQTQeFLqhnF2N2MA?both) with the button between them.
+You can see and edit the markdown version of this page by clicking the 'pencil' icon on the top bar - this will allow you to see markdown examples. You can view the formatted version by clicking the 'eye' icon, and see both at the same time with the button between them.
 :::
 
 Using this system allows us to publish accepted submissions as fully accessible and searchable document on the web, with rich media capabilities, as well as static PDF versions. However, if this doesn't suit you, please refer to our email for the alternative word document template.
 
 ## Writing and editing your submission
 
-Once you have read and understood everything, please replace the text of this document with your submission. This includes replacing the title at the top ("Algorithmic Pattern - Paper Template") with the title of your submission, as well as replacing the name, affiliation (if you have one) and email address below it with your own.
+Once you have read and understood everything, please replace the text of this document with your submission. This includes replacing the title at the top ("Algorithmic Pattern - Paper Template") with the title of your submission, as well as replacing the name, affiliation (if you have one) and email address below it with your own. Repeat this for each author.
+
+You can share this website address with collaborators, and edit it together. If you make a mistake, you can browse earlier versions of your document under the 'Revision' menu item.
+
 
 Add headings, citations and other footnotes, images, videos and so on to your document, as demonstrated below.
 
-When you are ready, simply copy and paste the website address into the submission form shown on https://algorithmicpattern.org/2025 . Feel free to continue to make tweaks to your document up until the deadline.
+When you are ready, simply copy and paste the website address into the submission form shown on https://2025.algorithmicpattern.org. Feel free to continue to make tweaks to your document up until the deadline.
 
 ## Referencing related work
 
@@ -75,4 +78,3 @@ For information e.g. on [code formatting](https://doc.patternclub.org/features?b
 ## Conclusion 
 
 If you have any questions or concerns, please email the corresponding chair Alex McLean at <alex@slab.org>.
-
