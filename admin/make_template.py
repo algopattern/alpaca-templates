@@ -3,6 +3,7 @@
 import requests
 import browser_cookie3
 
+# get login info from firefox
 cookiejar = browser_cookie3.firefox(domain_name='doc.patternclub.org')
 
 url = 'https://doc.patternclub.org/new'
