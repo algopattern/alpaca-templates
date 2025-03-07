@@ -1,0 +1,27 @@
+
+Thanks you for your interest in contributing to Algorithmic Pattern 2025!
+
+This is the promised email with templates for preparing your submission.
+
+Please refer to the call for proposals for details:
+  https://2025.algorithmicpattern.org/call/
+
+Here is the website address for preparing your submission in markdown:
+  URL
+
+Please keep this address safe. This address is private to you and your
+submission. If you have co-authors, you can share the address with
+them, and edit the submission together.
+
+There is no 'save' button, your edits are automatically saved. To undo
+a mistake, refer to the history feature.
+
+
+If you prefer to submit your proposal using Word or similar word
+processor, please use this template instead:
+  https://github.com/algopattern/alpaca-templates/raw/refs/heads/main/alpaca-template-2025.odt
+
+
+Best wishes,
+
+Alex
