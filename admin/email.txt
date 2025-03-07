@@ -1,5 +1,5 @@
 
-Thanks you for your interest in contributing to Algorithmic Pattern 2025!
+Thank you for your interest in contributing to Algorithmic Pattern 2025!
 
 This is the promised email with templates for preparing your submission.
 
@@ -21,6 +21,7 @@ If you prefer to submit your proposal using Word or similar word
 processor, please use this template instead:
   https://github.com/algopattern/alpaca-templates/raw/refs/heads/main/alpaca-template-2025.odt
 
+Please let me know if something is unclear, or if you have questions.
 
 Best wishes,
 
