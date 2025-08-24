@@ -3,12 +3,19 @@
 import requests
 
 from secrets import API_TOKEN
+import browser_cookie3
+import re
+import os
+import subprocess
+
+cache = True
 
 BASE_URL = "https://conference.algorithmicpattern.org/api/"
 
 # Configuration
 event_slug = 2025
 
+cookiejar = browser_cookie3.firefox(domain_name='doc.patternclub.org')
 
 # [{'id': 263, 'question': 1, 'answer': 'file://Proposal Tonje K Johnstone.pdf', 
 #   'answer_file': 'https://conference.algorithmicpattern.org/media/2025/question_uploads/Proposal_Tonje_K_Johnstone_mIdpXmh.pdf', 
@@ -88,6 +95,41 @@ def get_answers(question):
     data = response.json()
     print(data)
 
+def get_markdown(sub):
+    code = sub["code"]
+    cachefile = "cache/" + code + "/source.md"
+    pdffile = "cache/" + code + "/render.html"
+
+    if cache:
+        if os.path.isdir("cache/" + code) and os.path.exists(cachefile):
+            with open(cachefile, 'r') as file:
+                result = file.read()
+                print("used cache")
+    else:
+        url = sub["hedgedoc"]
+        url = re.sub('/?(\#.*)?$', '', url)
+        url = url + '/download/'
+        r = requests.get(url, cookies=cookiejar)
+
+        if r.status_code != 200:
+            print("Response code: " + str(r.status_code))
+            sys.exit(-2)
+        if not os.path.exists("cache/" + code):
+            os.makedirs("cache/" + code)
+        with open(cachefile, "w") as text_file:
+            text_file.write(r.text)
+            
+        alias = sub["title"]
+        alias = re.sub('\s', '_', alias) + ".md"
+        alias = "cache/" + code + "/" + alias
+        if not os.path.exists(alias):
+            os.symlink("source.md", alias)
+        result = r.text
+
+    print("running,", "/usr/bin/pandoc", cachefile, "-o", pdffile)
+    subprocess.run(["/usr/bin/pandoc", "-s", cachefile, "-o", pdffile])
+    
+    return result
 
 if __name__ == "__main__":
     accepted_submissions = get_accepted_submissions()
@@ -99,5 +141,6 @@ if __name__ == "__main__":
             print(f"- {sub['title']} by {(speakers)}")
             if "hedgedoc" in sub:
                 print("   " + sub["hedgedoc"])
+                markdown = get_markdown(sub)
     else:
         print("No accepted submissions found or an error occurred.")
