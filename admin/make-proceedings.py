@@ -8,8 +8,6 @@ import re
 import os
 import subprocess
 
-cache = True
-
 BASE_URL = "https://conference.algorithmicpattern.org/api/"
 
 # Configuration
@@ -59,7 +57,7 @@ def get_accepted_submissions():
                     if answer["question"] == 2:
                         submission["hedgedoc"] = answer["answer"]
                 submissions.append(submission)
-                print(submission)
+                # print(submission)
         next_page = data["next"]  # Pagination handling
 
     return submissions
@@ -95,16 +93,15 @@ def get_answers(question):
     data = response.json()
     print(data)
 
-def get_markdown(sub):
+def render_markdown(sub):
     code = sub["code"]
     cachefile = "cache/" + code + "/source.md"
     pdffile = "cache/" + code + "/render.html"
 
-    if cache:
-        if os.path.isdir("cache/" + code) and os.path.exists(cachefile):
+    if os.path.isdir("cache/" + code) and os.path.exists(cachefile):
             with open(cachefile, 'r') as file:
                 result = file.read()
-                print("used cache")
+                # print("used cache")
     else:
         url = sub["hedgedoc"]
         url = re.sub('/?(\#.*)?$', '', url)
@@ -120,27 +117,33 @@ def get_markdown(sub):
             text_file.write(r.text)
             
         alias = sub["title"]
-        alias = re.sub('\s', '_', alias) + ".md"
-        alias = "cache/" + code + "/" + alias
+        alias = re.sub('\s', '_', alias)
+        alias = "cache/" + alias
         if not os.path.exists(alias):
-            os.symlink("source.md", alias)
+            os.symlink(code, alias)
         result = r.text
-
-    print("running,", "/usr/bin/pandoc", cachefile, "-o", pdffile)
-    subprocess.run(["/usr/bin/pandoc", "-s", cachefile, "-o", pdffile])
+    print(f" - rendering {sub['hedgedoc']} to file:///home/alex/src/alpaca-templates/admin/{pdffile}")
+    # print("running,", "/usr/bin/pandoc", cachefile, "-o", pdffile)
+    subprocess.run(["/usr/bin/pandoc", "-s", cachefile, "--metadata", "title=" + sub['title'] + " by " + sub['prettyspeakers'], "-o", pdffile])
     
-    return result
+    localpath = "cache/" + code + "/local"
+    if not os.path.exists(localpath):
+        os.makedirs(localpath)
+    subprocess.run(["wget", "-q", "--span-hosts", "--no-directories", "-k", "-p", "http://localhost:8080/" + code + "/render.html", "-P", localpath])
+
+    return pdffile
 
 if __name__ == "__main__":
     accepted_submissions = get_accepted_submissions()
 
     if accepted_submissions:
-        print(f"Accepted submissions:\n")
+        print(f"Accepted submissions:\n\n")
         for sub in accepted_submissions:
             speakers = prettyjoin(map(lambda x: x['name'], sub["speakers"]))
-            print(f"- {sub['title']} by {(speakers)}")
+            sub['prettyspeakers'] = speakers
+            print(f"\n{sub['title']} by {(speakers)}")
             if "hedgedoc" in sub:
-                print("   " + sub["hedgedoc"])
-                markdown = get_markdown(sub)
+                file = render_markdown(sub)
+                
     else:
         print("No accepted submissions found or an error occurred.")
