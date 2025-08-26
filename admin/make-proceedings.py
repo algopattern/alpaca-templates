@@ -3,11 +3,15 @@
 import requests
 
 from secrets import API_TOKEN
-import browser_cookie3
-import re
-import os
-import subprocess
+import browser_cookie3, re, sys, os, subprocess
 
+limit = None
+
+if len(sys.argv) > 1:
+  limit = sys.argv[1]
+  subprocess.run(["rm", "-rf", "cache/" + limit])
+
+print("limit", limit)
 BASE_URL = "https://conference.algorithmicpattern.org/api/"
 
 # Configuration
@@ -48,6 +52,8 @@ def get_accepted_submissions():
         data = response.json()
         # print(data['results'])
         for submission in data['results']:
+            if limit and limit != submission["code"]:
+                continue
             # print(submission["speakers"])
             # print(submission["title"])
             type = submission["submission_type"]["name"]["en"]
@@ -122,14 +128,15 @@ def render_markdown(sub):
         if not os.path.exists(alias):
             os.symlink(code, alias)
         result = r.text
-    print(f" - rendering {sub['hedgedoc']} to file:///home/alex/src/alpaca-templates/admin/{pdffile}")
-    # print("running,", "/usr/bin/pandoc", cachefile, "-o", pdffile)
-    subprocess.run(["/usr/bin/pandoc", "-s", cachefile, "--metadata", "title=" + sub['title'] + " by " + sub['prettyspeakers'], "-o", pdffile])
-    
-    localpath = "cache/" + code + "/local"
-    if not os.path.exists(localpath):
-        os.makedirs(localpath)
-    subprocess.run(["wget", "-q", "--span-hosts", "--no-directories", "-k", "-p", "http://localhost:8080/" + code + "/render.html", "-P", localpath])
+
+        #print(f" - rendering {sub['hedgedoc']} to file:///home/alex/src/alpaca-templates/admin/{pdffile}")
+        #print(" ".join(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", pdffile]))
+        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", pdffile])
+        
+        localpath = "cache/" + code + "/local"
+        if not os.path.exists(localpath):
+            os.makedirs(localpath)
+        subprocess.run(["wget", "-q", "--span-hosts", "--exclude-domains", "trinket.io,editor.p5js.org", "--no-directories", "-k", "-p", "http://localhost:8080/" + code + "/render.html", "-P", localpath])
 
     return pdffile
 
@@ -141,8 +148,9 @@ if __name__ == "__main__":
         for sub in accepted_submissions:
             speakers = prettyjoin(map(lambda x: x['name'], sub["speakers"]))
             sub['prettyspeakers'] = speakers
-            print(f"\n{sub['title']} by {(speakers)}")
+            print(f"\n[{sub['code']}] {sub['title']} by {(speakers)}\n")
             if "hedgedoc" in sub:
+                print(f"  {sub['hedgedoc']}\n  http://localhost:8080/{sub['code']}/local/render.html")
                 file = render_markdown(sub)
                 
     else:
