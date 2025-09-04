@@ -26,6 +26,7 @@ file.close()
 
 # create hedgedoc document
 r = requests.post(url, headers=headers, cookies=cookiejar, data=md.encode('utf-8'))
+print("url: ", r.url)
 
 # construct email
 file = open('./email.txt')

@@ -102,7 +102,9 @@ def get_answers(question):
 def render_markdown(sub):
     code = sub["code"]
     cachefile = "cache/" + code + "/source.md"
-    pdffile = "cache/" + code + "/render.html"
+    standalonefile = "cache/" + code + "/render.html"
+    fragmentfile = "cache/" + code + "/fragment.html"
+    pdffile = "cache/" + code + "/render.pdf"
 
     if os.path.isdir("cache/" + code) and os.path.exists(cachefile):
             with open(cachefile, 'r') as file:
@@ -129,16 +131,17 @@ def render_markdown(sub):
             os.symlink(code, alias)
         result = r.text
 
-        #print(f" - rendering {sub['hedgedoc']} to file:///home/alex/src/alpaca-templates/admin/{pdffile}")
-        #print(" ".join(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", pdffile]))
-        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", pdffile])
+        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", fragmentfile])
+        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", standalonefile])
+        print("/usr/bin/pandoc", "--mathjax", "-s", cachefile, "-o", pdffile)
+        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "-o", pdffile])
         
         localpath = "cache/" + code + "/local"
         if not os.path.exists(localpath):
             os.makedirs(localpath)
         subprocess.run(["wget", "-q", "--span-hosts", "--exclude-domains", "trinket.io,editor.p5js.org", "--no-directories", "-k", "-p", "http://localhost:8080/" + code + "/render.html", "-P", localpath])
 
-    return pdffile
+    return standalonefile
 
 if __name__ == "__main__":
     accepted_submissions = get_accepted_submissions()
