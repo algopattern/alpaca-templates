@@ -103,6 +103,7 @@ def render_markdown(sub):
     code = sub["code"]
     cachefile = "cache/" + code + "/source.md"
     standalonefile = "cache/" + code + "/render.html"
+    mediadir = "cache/" + code + "/media/"
     fragmentfile = "cache/" + code + "/fragment.html"
     pdffile = "cache/" + code + "/render.pdf"
 
@@ -126,15 +127,17 @@ def render_markdown(sub):
             
         alias = sub["title"]
         alias = re.sub('\s', '_', alias)
-        alias = "cache/" + alias
-        if not os.path.exists(alias):
-            os.symlink(code, alias)
+        cachealias = "cache/" + alias
+        if not os.path.exists(cachealias):
+            os.symlink(code, cachealias)
         result = r.text
+        epubfile = "output/" + alias + ".epub"
 
-        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", fragmentfile])
-        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", standalonefile])
-        print("/usr/bin/pandoc", "--mathjax", "-s", cachefile, "-o", pdffile)
-        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "-o", pdffile])
+        # subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", fragmentfile])
+        print("/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--extract-media="+mediadir, "--template=template.html", "-o", standalonefile)
+        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--extract-media="+mediadir, "--template=template.html", "-o", standalonefile])
+        # print("/usr/bin/pandoc", "--mathjax", cachefile, "-o", epubfile)
+        # subprocess.run(["/usr/bin/pandoc", "--mathjax", "--gladtex", cachefile, "-o", epubfile])
         
         localpath = "cache/" + code + "/local"
         if not os.path.exists(localpath):
