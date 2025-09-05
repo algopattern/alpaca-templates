@@ -5,6 +5,8 @@ import requests
 from secrets import API_TOKEN
 import browser_cookie3, re, sys, os, subprocess
 
+rootdir = "/home/alex/src/alpaca-templates/admin/"
+
 limit = None
 
 if len(sys.argv) > 1:
@@ -101,50 +103,36 @@ def get_answers(question):
 
 def render_markdown(sub):
     code = sub["code"]
-    cachefile = "cache/" + code + "/source.md"
-    standalonefile = "cache/" + code + "/render.html"
-    mediadir = "cache/" + code + "/media/"
-    fragmentfile = "cache/" + code + "/fragment.html"
-    pdffile = "cache/" + code + "/render.pdf"
+    sourcefile = "source.md"
+    htmlfile = "render.html"
+    mediadir = "media/"
 
-    if os.path.isdir("cache/" + code) and os.path.exists(cachefile):
-            with open(cachefile, 'r') as file:
-                result = file.read()
-                # print("used cache")
-    else:
-        url = sub["hedgedoc"]
-        url = re.sub('/?(\#.*)?$', '', url)
-        url = url + '/download/'
-        r = requests.get(url, cookies=cookiejar)
+    if not os.path.exists(rootdir + "cache/" + code):
+        os.makedirs(rootdir + "cache/" + code)
+    os.chdir(rootdir + "cache/" + code)
 
-        if r.status_code != 200:
-            print("Response code: " + str(r.status_code))
-            sys.exit(-2)
-        if not os.path.exists("cache/" + code):
-            os.makedirs("cache/" + code)
-        with open(cachefile, "w") as text_file:
-            text_file.write(r.text)
-            
-        alias = sub["title"]
-        alias = re.sub('\s', '_', alias)
-        cachealias = "cache/" + alias
-        if not os.path.exists(cachealias):
-            os.symlink(code, cachealias)
-        result = r.text
-        epubfile = "output/" + alias + ".epub"
+    alias = sub["title"]
+    alias = re.sub('\s', '_', alias)
+    cachealias = rootdir + "cache/" + alias + ".html"
+    if not os.path.exists(cachealias):
+        os.symlink(code + "/render.html", cachealias)
 
-        # subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--template=template.html", "-o", fragmentfile])
-        print("/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--extract-media="+mediadir, "--template=template.html", "-o", standalonefile)
-        subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", cachefile, "--extract-media="+mediadir, "--template=template.html", "-o", standalonefile])
-        # print("/usr/bin/pandoc", "--mathjax", cachefile, "-o", epubfile)
-        # subprocess.run(["/usr/bin/pandoc", "--mathjax", "--gladtex", cachefile, "-o", epubfile])
-        
-        localpath = "cache/" + code + "/local"
-        if not os.path.exists(localpath):
-            os.makedirs(localpath)
-        subprocess.run(["wget", "-q", "--span-hosts", "--exclude-domains", "trinket.io,editor.p5js.org", "--no-directories", "-k", "-p", "http://localhost:8080/" + code + "/render.html", "-P", localpath])
+    url = sub["hedgedoc"]
+    url = re.sub('/?(\#.*)?$', '', url)
+    url = url + '/download/'
+    r = requests.get(url, cookies=cookiejar)
 
-    return standalonefile
+    if r.status_code != 200:
+        print("Response code: " + str(r.status_code))
+        sys.exit(-2)
+    with open(sourcefile, "w") as text_file:
+        text_file.write(r.text)
+
+    result = r.text
+    subprocess.run(["/usr/bin/pandoc", "--mathjax", "-s", sourcefile, "--extract-media="+mediadir, 
+                    "--template="+rootdir+"template.html", "--css=../../pandoc.css", "-o", htmlfile])
+
+    return htmlfile
 
 if __name__ == "__main__":
     accepted_submissions = get_accepted_submissions()
@@ -156,7 +144,7 @@ if __name__ == "__main__":
             sub['prettyspeakers'] = speakers
             print(f"\n[{sub['code']}] {sub['title']} by {(speakers)}\n")
             if "hedgedoc" in sub:
-                print(f"  {sub['hedgedoc']}\n  http://localhost:8080/{sub['code']}/local/render.html")
+                print(f"  {sub['hedgedoc']}\n  http://localhost:8080/{sub['code']}/render.html")
                 file = render_markdown(sub)
                 
     else:
